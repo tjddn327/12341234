@@ -8,6 +8,14 @@ public class MemberCreateCommand {
     @JsonProperty("class")
     private ClassType clazz = ClassType.B;
 
+    public MemberCreateCommand(String name, Integer age, ClassType clazz) {
+        this.name = name;
+        this.age = age;
+        this.clazz = clazz;
+    }
+
+
+
     public void setName(String name) {
         this.name = name;
     }
@@ -18,5 +26,16 @@ public class MemberCreateCommand {
 
     public void setClazz(ClassType clazz) {
         this.clazz = clazz;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Integer getAge() {
+        return age;
+    }
+    public ClassType getClazz() {
+        return clazz;
     }
 }

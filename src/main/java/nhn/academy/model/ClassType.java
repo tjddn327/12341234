@@ -23,4 +23,10 @@ public enum ClassType {
     public String toJson(){
         return this.name().toLowerCase();
     }
+
+
+    @Override
+    public String toString(){
+        return name().toLowerCase();
+    }
 }

@@ -6,14 +6,16 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
 public class Member {
     private String name;
+
     @JsonSerialize(using = ToStringSerializer.class)
     private Integer age;
+
     @JsonSerialize(using = ToStringSerializer.class)
     @JsonProperty("class")
     private ClassType clazz;
 
     public Member(String name, Integer age, ClassType clazz) {
-        this.name = name;
+        this.name = name;`
         this.age = age;
         this.clazz = clazz;
 
@@ -30,4 +32,5 @@ public class Member {
     public ClassType getClazz() {
         return clazz;
     }
+
 }
