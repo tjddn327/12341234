@@ -11,7 +11,6 @@ import org.springframework.test.context.jdbc.Sql;
 import static org.assertj.core.api.Assertions.assertThat;
 
 // TODO #3: 아래 `@Disabled` 어노테이션을 삭제하고 테스트를 통과시키세요.
-@Disabled("temporary")
 @DataJpaTest
 class OrderItemRepositoryTest {
 

@@ -1,5 +1,10 @@
 package com.nhnacademy.springbootjpa.entity;
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
+
 // TODO #1: `order_item` 테이블과 매핑될 `OrderItem` Entity 클래스를 작성하세요. foreign key 부분은 무시합니다.
 /*
  * create table order_item
@@ -15,16 +20,20 @@ package com.nhnacademy.springbootjpa.entity;
  *         foreign key (order_id) references "order" (id)
  * );
  */
+@Entity
 public class OrderItem {
-    public OrderItemPk getPk() {
-        return null;
-    }
+    @Getter
+    @EmbeddedId
+    private OrderItemPk pk;
 
-    public long getItemId() {
-        return 0;
-    }
+    @Getter
+    @Setter
+    @NotNull
+    private long itemId;
 
-    public int getQuantity() {
-        return 0;
-    }
+    @Getter
+    @Setter
+    @NotNull
+    private int quantity;
+
 }
