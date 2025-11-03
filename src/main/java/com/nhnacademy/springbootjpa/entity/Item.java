@@ -3,6 +3,7 @@ package com.nhnacademy.springbootjpa.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 // TODO #1: `item` 테이블과 매핑될 `Item` Entity 클래스를 작성하세요.
@@ -24,7 +25,7 @@ public class Item {
 
     @Getter
     @NotNull
-    @Column(length = 40)
+    @Length(max = 40)
     private String name;
 
     @Getter
