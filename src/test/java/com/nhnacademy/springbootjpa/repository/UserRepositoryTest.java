@@ -22,6 +22,7 @@ class UserRepositoryTest {
         // given
         String id = "admin";
         String password = "12345";
+        int age = 15;
 
         // when
         User user = userRepository.findById(id).orElse(null);
@@ -30,12 +31,13 @@ class UserRepositoryTest {
         assertThat(user).isNotNull();
         assertThat(user.getId()).isEqualTo(id);
         assertThat(user.getPassword()).isEqualTo(password);
+        assertThat(user.getAge()).isEqualTo(age);
     }
 
     @Test
     void userNotFoundTest() {
         // given
-        String id = "admin";
+        String id = "admi";
 
         // when
         User user = userRepository.findById(id).orElse(null);
@@ -49,7 +51,8 @@ class UserRepositoryTest {
         // given
         String id = "test";
         String password = "12345";
-        User user = new User(id, password);
+        int age = 20;
+        User user = new User(id, password, age);
         userRepository.save(user);
 
         // when
@@ -59,6 +62,7 @@ class UserRepositoryTest {
         assertThat(found).isNotNull();
         assertThat(found.getId()).isEqualTo(id);
         assertThat(found.getPassword()).isEqualTo(password);
+        assertThat(found.getAge()).isEqualTo(age);
     }
 
 }

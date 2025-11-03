@@ -19,7 +19,7 @@ public class CreateUserController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/users")
     public User create(@Valid @RequestBody CreateUserRequest request) {
-        return userService.create(request.id(), request.password());
+        return userService.create(request.id(), request.password(), request.age());
     }
 
 }

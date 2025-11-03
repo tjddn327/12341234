@@ -17,7 +17,7 @@ public class ModifyUserController {
 
     @PutMapping("/users/{id}")
     public User modifyById(@PathVariable("id") String id, @Valid @RequestBody ModifyUserRequest request) {
-        return userService.modifyById(id, request.password());
+        return userService.modifyById(id, request.password(), request.age());
     }
 
 }
