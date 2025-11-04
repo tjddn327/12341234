@@ -4,54 +4,58 @@ import com.nhnacademy.shoppingmall.common.mvc.annotation.RequestMapping;
 import com.nhnacademy.shoppingmall.common.mvc.controller.BaseController;
 import com.nhnacademy.shoppingmall.model.cart.domain.Cart;
 import com.nhnacademy.shoppingmall.model.cart.service.CartService;
-import com.nhnacademy.shoppingmall.model.cart.service.impl.CartServiceImpl;
-import com.nhnacademy.shoppingmall.model.orderProduct.domain.OrderProduct;
-import com.nhnacademy.shoppingmall.model.orderProduct.repository.impl.OrderProductRepositoryImpl;
-import com.nhnacademy.shoppingmall.model.orderProduct.service.OrderProductService;
-import com.nhnacademy.shoppingmall.model.orderProduct.service.impl.OrderProductServiceImpl;
+import com.nhnacademy.shoppingmall.model.orderDetails.domain.OrderDetail;
+import com.nhnacademy.shoppingmall.model.orderDetails.service.OrderDetailService;
 import com.nhnacademy.shoppingmall.model.orders.domain.Orders;
-import com.nhnacademy.shoppingmall.model.orders.repository.impl.OrdersRepositoryImpl;
 import com.nhnacademy.shoppingmall.model.orders.service.OrdersService;
-import com.nhnacademy.shoppingmall.model.orders.service.impl.OrdersServiceImpl;
 import com.nhnacademy.shoppingmall.model.product.domain.Product;
-import com.nhnacademy.shoppingmall.model.product.repository.impl.ProductRepositoryImpl;
 import com.nhnacademy.shoppingmall.model.product.service.ProductService;
-import com.nhnacademy.shoppingmall.model.product.service.impl.ProductServiceImpl;
 import com.nhnacademy.shoppingmall.model.user.domain.User;
-import com.nhnacademy.shoppingmall.model.user.repository.impl.UserRepositoryImpl;
 import com.nhnacademy.shoppingmall.model.user.service.UserService;
-import com.nhnacademy.shoppingmall.model.user.service.impl.UserServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
 @RequestMapping(method = RequestMapping.Method.POST, value = "/order/submit.do")
+@Controller
 public class OrderPostController implements BaseController {
-    private final OrdersService ordersService = new OrdersServiceImpl(new OrdersRepositoryImpl());
-    private final UserService userService = new UserServiceImpl(new UserRepositoryImpl());
-    private final CartService cartService = new CartServiceImpl();
-    private final ProductService productService = new ProductServiceImpl(new ProductRepositoryImpl());
-    private final OrderProductService orderProductService = new OrderProductServiceImpl(new OrderProductRepositoryImpl());
+    private final OrdersService ordersService;
+    private final UserService userService;
+    private final CartService cartService;
+    private final ProductService productService;
+    private final OrderDetailService orderDetailService;
+
+    @Autowired
+    public OrderPostController(OrdersService ordersService, UserService userService, CartService cartService, ProductService productService, OrderDetailService orderDetailService) {
+        this.ordersService = ordersService;
+        this.userService = userService;
+        this.cartService = cartService;
+        this.productService = productService;
+        this.orderDetailService = orderDetailService;
+    }
+
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) {
         HttpSession session = req.getSession(false);
-        User user = (User)session.getAttribute("user");
+        User user = (User) session.getAttribute("user");
 
-        String shipAddress =  req.getParameter("shipAddress");
+        String shipAddress = req.getParameter("shipAddress");
 
         List<Cart> cartItems = cartService.getCartItems(user.getUserId());
-        if(cartItems.isEmpty()) {
+        if (cartItems.isEmpty()) {
             return "redirect:/index.do";
         }
 
         int totalPrice = 0;
         for (Cart cartItem : cartItems) {
-            Product product = productService.getProduct(cartItem.getProductId());
+            Product product = productService.getProduct(cartItem.getPk().getProductId());
             int itemPrice = product.getUnitPrice();
             int quantity = cartItem.getQuantity();
             totalPrice += itemPrice * quantity;
@@ -62,24 +66,23 @@ public class OrderPostController implements BaseController {
             return "redirect:/order/form.do?error=point_not_enough";
         }
 
-        Orders newOrder = new Orders(0, user.getUserId(), LocalDateTime.now(), shipAddress, totalPrice);
+        Orders newOrder = new Orders(0, user, LocalDateTime.now(), shipAddress, totalPrice);
         ordersService.saveOrder(newOrder);
-        int orderId = newOrder.getOrderId();
 
         for (Cart item : cartItems) {
-            Product product = productService.getProduct(item.getProductId());
-            OrderProduct orderProduct = new OrderProduct(orderId, item.getProductId(), item.getQuantity(), product.getUnitPrice());
-            orderProductService.saveOrderProduct(orderProduct);
+            Product product = productService.getProduct(item.getPk().getProductId());
+            OrderDetail orderDetail = new OrderDetail(0, newOrder, product, item.getQuantity(), product.getUnitPrice());
+            orderDetailService.saveOrderDetail(orderDetail);
         }
 
         user.setUserPoint(user.getUserPoint() - totalPrice);
         userService.updateUser(user);
 
         for (Cart item : cartItems) {
-            cartService.deleteCartItem(user.getUserId(), item.getProductId());
+            cartService.deleteCartItem(user.getUserId(), item.getPk().getProductId());
         }
-        log.info("주문 성공: orderId={}, userId={}, totalPrice={}", orderId, user.getUserId(), totalPrice);
+        log.info("주문 성공: orderId={}, userId={}, totalPrice={}", newOrder.getOrderId(), user.getUserId(), totalPrice);
 
-        return "redirect:/order/complete.do?orderId=" + orderId;
+        return "redirect:/order/complete.do?orderId=" + newOrder.getOrderId();
     }
 }

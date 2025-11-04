@@ -4,18 +4,24 @@ import com.nhnacademy.shoppingmall.common.mvc.annotation.RequestMapping;
 import com.nhnacademy.shoppingmall.common.mvc.controller.BaseController;
 import com.nhnacademy.shoppingmall.model.user.domain.User;
 import com.nhnacademy.shoppingmall.model.user.exception.UserAlreadyExistsException;
-import com.nhnacademy.shoppingmall.model.user.repository.impl.UserRepositoryImpl;
 import com.nhnacademy.shoppingmall.model.user.service.UserService;
-import com.nhnacademy.shoppingmall.model.user.service.impl.UserServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 
 import java.time.LocalDateTime;
 
 @RequestMapping(method = RequestMapping.Method.POST, value = "/signupAction.do")
+@Controller
 public class SignUpPostController implements BaseController {
 
-    private final UserService userService = new UserServiceImpl(new UserRepositoryImpl());
+    private final UserService userService;
+
+    @Autowired
+    public SignUpPostController(UserService userService) {
+        this.userService = userService;
+    }
 
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) {

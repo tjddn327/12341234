@@ -1,23 +1,48 @@
 package com.nhnacademy.shoppingmall.model.user.domain;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+@Entity
+@Table(name = "Users")
 public class User {
-    public enum Auth{
-        ROLE_ADMIN,ROLE_USER
+
+    public enum Auth {
+        ROLE_ADMIN, ROLE_USER
     }
 
+    @Id
+    @Column(name = "UserId", length = 50)
     private String userId;
+
+    @Column(name = "UserName", nullable = false, length = 50)
     private String userName;
+
+    @Column(name = "UserPassword", nullable = false, length = 200)
     private String userPassword;
+
+    @Column(name = "UserBirth", nullable = false, length = 8)
     private String userBirth;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "UserAuth", nullable = false, length = 10)
     private Auth userAuth;
+
+    @Column(name = "UserPoint", nullable = false)
     private int userPoint;
+
+    @Column(name = "CreatedAt", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "LatestLogin_at")
     private LocalDateTime latestLoginAt;
 
-    public User (String userId, String userName, String userPassword, String userBirth, Auth userAuth, int userPoint, LocalDateTime createdAt, LocalDateTime latestLoginAt ){
+    // JPA를 위한 기본 생성자
+    protected User() {
+    }
+
+    public User(String userId, String userName, String userPassword, String userBirth, Auth userAuth, int userPoint, LocalDateTime createdAt, LocalDateTime latestLoginAt) {
         this.userId = userId;
         this.userName = userName;
         this.userPassword = userPassword;
@@ -25,7 +50,7 @@ public class User {
         this.userAuth = userAuth;
         this.userPoint = userPoint;
         this.createdAt = createdAt;
-        this.latestLoginAt=latestLoginAt;
+        this.latestLoginAt = latestLoginAt;
     }
 
     public String getUserId() {
@@ -60,6 +85,8 @@ public class User {
         return latestLoginAt;
     }
 
+    // --- 원본 Setter ---
+
     public void setUserName(String userName) {
         this.userName = userName;
     }
@@ -78,6 +105,10 @@ public class User {
 
     public void setUserPoint(int userPoint) {
         this.userPoint = userPoint;
+    }
+
+    public void setLatestLoginAt(LocalDateTime latestLoginAt) {
+        this.latestLoginAt = latestLoginAt;
     }
 
     @Override

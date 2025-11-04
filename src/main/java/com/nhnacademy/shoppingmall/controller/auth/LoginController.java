@@ -5,8 +5,10 @@ import com.nhnacademy.shoppingmall.common.mvc.controller.BaseController;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.stereotype.Controller;
 
 @RequestMapping(method = RequestMapping.Method.GET,value = "/login.do")
+@Controller
 public class LoginController implements BaseController {
 
     @Override

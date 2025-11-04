@@ -4,67 +4,89 @@ import com.nhnacademy.shoppingmall.model.user.exception.UserAlreadyExistsExcepti
 import com.nhnacademy.shoppingmall.model.user.exception.UserNotFoundException;
 import com.nhnacademy.shoppingmall.model.user.service.UserService;
 import com.nhnacademy.shoppingmall.model.user.domain.User;
-import com.nhnacademy.shoppingmall.model.user.repository.UserRepository;
+import com.nhnacademy.shoppingmall.model.user.repository.JpaUserRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
+@Slf4j
+@Service // [추가] Spring Bean으로 등록
 public class UserServiceImpl implements UserService {
-    private final UserRepository userRepository;
 
-    public UserServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    private final JpaUserRepository jpaUserRepository;
+
+    // [추가] @Autowired로 JpaRepository 주입
+    @Autowired
+    public UserServiceImpl(JpaUserRepository jpaUserRepository) {
+        this.jpaUserRepository = jpaUserRepository;
     }
 
     @Override
+    @Transactional(readOnly = true) // [추가] 트랜잭션 (읽기 전용)
     public User getUser(String userId){
-        //todo#4-1 회원조회
-        return userRepository.findById(userId).orElse(null);
+        return jpaUserRepository.findById(userId).orElse(null);
     }
 
     @Override
+    @Transactional // [추가] 트랜잭션
     public void saveUser(User user) {
-        //todo#4-2 회원등록
-        int count = userRepository.countByUserId(user.getUserId());
-        if (count > 0) {
+        if (jpaUserRepository.existsById(user.getUserId())) {
             throw new UserAlreadyExistsException(user.getUserId());
         }
-        userRepository.save(user);
+        jpaUserRepository.save(user);
     }
 
     @Override
+    @Transactional // [추가] 트랜잭션
     public void updateUser(User user) {
-        //todo#4-3 회원수정
-        int count = userRepository.countByUserId(user.getUserId());
-        if (count == 0) {
+        if (!jpaUserRepository.existsById(user.getUserId())) {
             throw new UserNotFoundException(user.getUserId());
         }
-        userRepository.update(user);
+        jpaUserRepository.save(user); // save가 update 역할도 겸함
     }
 
     @Override
+    @Transactional // [추가] 트랜잭션
     public void deleteUser(String userId) {
-        //todo#4-4 회원삭제
-        int count = userRepository.countByUserId(userId);
-        if (count == 0) {
+        if (!jpaUserRepository.existsById(userId)) {
             throw new UserNotFoundException(userId);
         }
-        userRepository.deleteByUserId(userId);
+        jpaUserRepository.deleteById(userId);
     }
 
     @Override
+    @Transactional // [추가] 트랜잭션 (로그인 시간 업데이트 때문에)
     public User doLogin(String userId, String userPassword) {
-        //todo#4-5 로그인 구현, userId, userPassword로 일치하는 회원 조회
-        User user = userRepository.findByUserIdAndUserPassword(userId, userPassword)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+        User user = jpaUserRepository.findByUserIdAndUserPassword(userId, userPassword)
+                .orElseThrow(() -> new UserNotFoundException(userId + ": 로그인 실패"));
 
-        userRepository.updateLatestLoginAtByUserId(userId, java.time.LocalDateTime.now());
-
+        jpaUserRepository.updateLatestLoginAtByUserId(userId, LocalDateTime.now());
         return user;
     }
 
     @Override
+    @Transactional(readOnly = true) // [추가] 트랜잭션 (읽기 전용)
     public List<User> getAllUser() {
-        return userRepository.findAll();
+        return jpaUserRepository.findAll();
     }
 
+    // [추가] 스레드용 포인트 업데이트 메서드
+    @Override
+    @Transactional
+    public void updateUserPoints(String userId, int points) {
+        User user = jpaUserRepository.findById(userId).orElse(null);
+        if (Objects.nonNull(user)) {
+            int newPoint = user.getUserPoint() + points;
+            user.setUserPoint(newPoint);
+            jpaUserRepository.save(user);
+            log.info("Point updated for user: {}, new point: {}", userId, newPoint);
+        } else {
+            log.warn("User not found for point update: {}", userId);
+        }
+    }
 }

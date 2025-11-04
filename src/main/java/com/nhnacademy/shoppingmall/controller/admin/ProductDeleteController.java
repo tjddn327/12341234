@@ -2,19 +2,25 @@ package com.nhnacademy.shoppingmall.controller.admin;
 
 import com.nhnacademy.shoppingmall.common.mvc.annotation.RequestMapping;
 import com.nhnacademy.shoppingmall.common.mvc.controller.BaseController;
-import com.nhnacademy.shoppingmall.model.product.repository.impl.ProductRepositoryImpl;
 import com.nhnacademy.shoppingmall.model.product.service.ProductService;
-import com.nhnacademy.shoppingmall.model.product.service.impl.ProductServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 
 import java.util.Objects;
 
 @Slf4j
 @RequestMapping(method = RequestMapping.Method.GET, value = "/admin/product/delete.do")
+@Controller
 public class ProductDeleteController implements BaseController {
-    private final ProductService productService = new ProductServiceImpl(new ProductRepositoryImpl());
+    private final ProductService productService;
+
+    @Autowired
+    public ProductDeleteController(ProductService productService) {
+        this.productService = productService;
+    }
 
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) {

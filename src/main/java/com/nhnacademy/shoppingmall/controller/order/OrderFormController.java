@@ -5,25 +5,31 @@ import com.nhnacademy.shoppingmall.common.mvc.controller.BaseController;
 import com.nhnacademy.shoppingmall.model.cart.domain.Cart;
 import com.nhnacademy.shoppingmall.model.cart.domain.CartItemView;
 import com.nhnacademy.shoppingmall.model.cart.service.CartService;
-import com.nhnacademy.shoppingmall.model.cart.service.impl.CartServiceImpl;
 import com.nhnacademy.shoppingmall.model.product.domain.Product;
-import com.nhnacademy.shoppingmall.model.product.repository.impl.ProductRepositoryImpl;
 import com.nhnacademy.shoppingmall.model.product.service.ProductService;
-import com.nhnacademy.shoppingmall.model.product.service.impl.ProductServiceImpl;
 import com.nhnacademy.shoppingmall.model.user.domain.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 @RequestMapping(method = RequestMapping.Method.GET, value = "/order/form.do")
+@Controller
 public class OrderFormController implements BaseController {
 
-    private final CartService cartService = new CartServiceImpl();
-    private final ProductService productService = new ProductServiceImpl(new ProductRepositoryImpl());
+    private final CartService cartService;
+    private final ProductService productService;
+
+    @Autowired
+    public OrderFormController(CartService cartService, ProductService productService) {
+        this.cartService = cartService;
+        this.productService = productService;
+    }
 
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) {
@@ -39,7 +45,7 @@ public class OrderFormController implements BaseController {
         int totalAmount = 0;
 
         for (Cart cart : cartItems) {
-            Product product = productService.getProduct(cart.getProductId());
+            Product product = productService.getProduct(cart.getPk().getProductId());
             if (product != null) {
                 int itemTotalPrice = product.getUnitPrice() * cart.getQuantity();
                 cartItemViews.add(new CartItemView(
@@ -59,4 +65,3 @@ public class OrderFormController implements BaseController {
         return "shop/order/order_form";
     }
 }
-
