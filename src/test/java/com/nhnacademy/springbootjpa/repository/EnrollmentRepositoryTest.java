@@ -22,10 +22,10 @@ class EnrollmentRepositoryTest {
     @Sql("enrollment-test.sql")
     @Test
     void test() {
-        List<Enrollment> enrollments1 = enrollmentRepository.findEnrollmentByStudentId("nhn");
+        List<Enrollment> enrollments1 = enrollmentRepository.findEnrollmentByStudentId_Name("nhn");
         assertThat(enrollments1).hasSize(3);
 
-        List<Enrollment> enrollments2 = enrollmentRepository.findEnrollmentByCourseId("jpa");
+        List<Enrollment> enrollments2 = enrollmentRepository.findEnrollmentByCourseId_Name("jpa");
         assertThat(enrollments2).hasSize(2);
     }
 

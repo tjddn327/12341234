@@ -10,9 +10,9 @@ import java.util.List;
 
 public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
 
-    List<Enrollment> findEnrollmentByStudentId(String studentIdName);
+    List<Enrollment> findEnrollmentByStudentId_Name(String studentIdName);
 
     // TODO #6: 강의 이름으로 수강신청 목록을 가져오는 쿼리가 실행되도록 메서드 이름을 정의하세요.
-    List<Enrollment> findEnrollmentByCourseId(String courseName);
+    List<Enrollment> findEnrollmentByCourseId_Name(String courseName);
 
 }
